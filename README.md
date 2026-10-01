@@ -9,7 +9,7 @@ KickOff is being migrated from the web prototype to a native Android app using *
 - My Games and Profile placeholder screens.
 - Demo data persists on this device with AsyncStorage.
 
-The current UI is a local prototype. It does **not** yet provide accounts, shared game data, real location search, realtime chat, notifications, or production capacity enforcement.
+The current UI is a local prototype. It does **not** yet provide accounts, shared game data, real location search, realtime chat, notifications, or production capacity enforcement. The Explore screen reports whether public Supabase environment values are present, but this is only a configuration check—not a live connection.
 
 ## Run locally
 
@@ -29,7 +29,7 @@ Review the migration and apply it to the intended Supabase project before connec
 ## Next implementation steps
 
 1. Apply and test the Supabase migration in the intended project.
-2. Add Supabase client configuration and authentication.
+2. Install and initialize the Supabase client, then add authentication.
 3. Replace local demo data with shared games and server-side join/leave.
 4. Add game details, chat, location, and push notifications.
 5. Add tests, privacy/terms, moderation, and Android release signing.
