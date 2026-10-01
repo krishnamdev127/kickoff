@@ -64,9 +64,7 @@ create policy "Organizer updates own games" on public.games for update to authen
 create policy "Organizer deletes own games" on public.games for delete to authenticated using ((select auth.uid()) = organizer_id);
 
 create policy "Members visible to signed-in users" on public.game_members for select to authenticated using (true);
-create policy "Users join as themselves" on public.game_members for insert to authenticated with check ((select auth.uid()) = user_id);
-create policy "Users update own membership" on public.game_members for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
-create policy "Users leave own membership" on public.game_members for delete to authenticated using ((select auth.uid()) = user_id);
+-- Membership writes are intentionally restricted to the capacity-safe RPCs below.
 
 create policy "Game members can read chat" on public.game_messages for select to authenticated using (
  exists (select 1 from public.game_members m where m.game_id = game_messages.game_id and m.user_id = (select auth.uid()) and m.membership_status = 'joined')
@@ -77,7 +75,7 @@ create policy "Joined members can send chat" on public.game_messages for insert 
 
 -- Capacity-safe join: row lock serializes joins for a given game. Waitlist is FIFO by joined_at.
 create or replace function public.join_game(p_game_id uuid)
-returns text language plpgsql security invoker set search_path = ''
+returns text language plpgsql security definer set search_path = ''
 as $$
 declare g public.games%rowtype; occupied integer; existing_status text;
 begin
@@ -101,7 +99,7 @@ end; $$;
 
 -- Leave and promote the earliest waitlisted player atomically.
 create or replace function public.leave_game(p_game_id uuid)
-returns void language plpgsql security invoker set search_path = ''
+returns void language plpgsql security definer set search_path = ''
 as $
 declare promoted uuid; occupied integer; capacity integer;
 begin
