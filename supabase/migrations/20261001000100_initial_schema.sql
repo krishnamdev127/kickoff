@@ -114,5 +114,7 @@ begin
  end if;
 end; $;
 
+revoke all on function public.join_game(uuid) from public, anon;
 grant execute on function public.join_game(uuid) to authenticated;
+revoke all on function public.leave_game(uuid) from public, anon;
 grant execute on function public.leave_game(uuid) to authenticated;
