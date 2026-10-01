@@ -6,7 +6,7 @@
  */
 export function getSupabasePublicConfig() {
   const url = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim();
-  const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const key = (process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY)?.trim();
 
   if (!url || !key || url.includes("YOUR_PROJECT") || key === "YOUR_PUBLISHABLE_KEY") {
     return { configured: false as const };
