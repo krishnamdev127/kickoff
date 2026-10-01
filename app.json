@@ -1,0 +1,1 @@
+{"expo":{"name":"KickOff","slug":"kickoff","scheme":"kickoff","version":"1.0.0","orientation":"portrait","userInterfaceStyle":"dark","newArchEnabled":true,"plugins":["expo-router"],"android":{"package":"com.krishnamdev.kickoff"},"experiments":{"typedRoutes":true}}}
