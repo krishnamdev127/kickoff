@@ -102,20 +102,19 @@ end; $$;
 -- Leave and promote the earliest waitlisted player atomically.
 create or replace function public.leave_game(p_game_id uuid)
 returns void language plpgsql security invoker set search_path = ''
-as $$
-declare promoted uuid;
+as $
+declare promoted uuid; occupied integer; capacity integer;
 begin
  if auth.uid() is null then raise exception 'Authentication required'; end if;
- perform 1 from public.games where id=p_game_id for update;
+ select max_players into capacity from public.games where id=p_game_id for update;
  if not found then raise exception 'Game not found'; end if;
  update public.game_members set membership_status='left' where game_id=p_game_id and user_id=auth.uid() and membership_status in ('joined','waitlisted');
- if exists (select 1 from public.game_members where game_id=p_game_id and membership_status='joined') then
-   -- No vacancy was created (caller may have left the waitlist).
-   return;
+ select count(*) into occupied from public.game_members where game_id=p_game_id and membership_status='joined';
+ if occupied < capacity then
+   select user_id into promoted from public.game_members where game_id=p_game_id and membership_status='waitlisted' order by joined_at limit 1;
+   if promoted is not null then update public.game_members set membership_status='joined' where game_id=p_game_id and user_id=promoted; end if;
  end if;
- select user_id into promoted from public.game_members where game_id=p_game_id and membership_status='waitlisted' order by joined_at limit 1;
- if promoted is not null then update public.game_members set membership_status='joined' where game_id=p_game_id and user_id=promoted; end if;
-end; $$;
+end; $;
 
 grant execute on function public.join_game(uuid) to authenticated;
 grant execute on function public.leave_game(uuid) to authenticated;
